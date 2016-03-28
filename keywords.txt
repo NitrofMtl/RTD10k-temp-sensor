@@ -1,0 +1,11 @@
+RTD10k	KEYWORD1
+read	KEYWORD2
+initialize	KEYWORD2
+serialInputMon	KEYWORD2
+runCalibration	KEYWORD2
+
+temp	KEYWORD6
+Vref	KEYWORD6
+resistance	KEYWORD6
+Vin	KEYWORD6
+reso	KEYWORD6
