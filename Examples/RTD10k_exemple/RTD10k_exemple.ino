@@ -43,27 +43,22 @@ R = RTD resistance at current temp
 
 #include <RTD10k.h>
 
-int Ainput[] = {0,1,2,3,4,5,6,7,8,9}; //set input pin for RTD
+int Ainput = A0; //set input pin for RTD
 float temperature = 0; //ouput variable
 String strRoomTemp = "Room Temperature"; //set the name of the input for serial print
-//float calibOffset[] = {332.67,262.25,403.59,322.58,222.22,505.76,660.95,132.74,142.65,403.59};
-float calibOffset[] = {0,0,0,0,0,0,0,0,0,0};
+//float calibOffset = 332.67; // example of get value on calibration example
+float calibOffset = 0; //comment to try example calibration
 RTD10k Ain;//start an instance of library
 
 void setup() {
   Serial.begin(9600);//start serial port
   analogReadResolution(12);//arduino DUE only
-  Ain.initialize(3.3, 12); //set the reference input voltage to 3.3V or 5V, and input resolution 10 or 12 (arduino DUE only)
-for (int i=0; i <= 9; i++){
-  Ain.calibrateRref(i,calibOffset[i]); //calibrate shield Reference resistor, (analog in, calibration value find with calibration sketch)
-}
+  Ain.init(3.3,12); //set the reference input voltage to 3.3V or 5V, and input resolution 10 or 12 (arduino DUE only)
+  Ain.calibrateRref(Ainput,calibOffset); //calibrate shield Reference resistor, (analog in, calibration value find with calibration sketch)
 }
 
 void loop() {
-for (int i=0; i <= 9; i++){
-  temperature = Ain.read(Ainput[i]); //do the reading temps loop
-
-  Ain.serialInputMon(strRoomTemp); //pring all value to the serial port
-}
+  temperature = Ain.read(Ainput); //do the reading temps 
+  Ain.serialInputMon(strRoomTemp); //print value to the serial port
   delay (1000);
 }
