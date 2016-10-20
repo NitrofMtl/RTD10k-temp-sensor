@@ -27,31 +27,31 @@
 
 #ifndef RTD10k_h
 #define RTD10k_h
-#include "Arduino.h"
-#include <math.h>
-    
+
+#if (ARDUINO >= 100)
+    #include "Arduino.h"
+#else
+    #include "WProgram.h"
+#endif
+
+#ifndef rRef
+#define rRef 10000
+#endif
+
 class RTD10k
 {
   public:
-    float temp;   //give tempeture
-    float Vin;  //voltage to the analoge pin input
-    float resistance;   //resistance in ohm of the RTD
-    int average(int inputAv); //average calculation function
+    RTD10k();
+    RTD10k(float vRef, int RESO);
 
-    void initialize(float Vref = 5,int reso = 10);  //referance voltage 3.3 or 5 V and input resolution
     float read(int selecInput);
-    void serialInputMon(String StrInput);
     void runCalibration(int input);
-    void calibrateRref(int input, float offset);
-
-  private:
-  
-    int _selecInput;
-    float _temp;
-    int _reso;
-    float _Vref;
-    float _RrefOffset[12];
-   
+    void setRtd(float vRef, int RESO);
+  private:  
+    int average(int inputAv); //average calculation function
+    float _vRef = 5;
+    int _RESO = 1023;
+    int numReadings = 5; //set average to count
 };
 
 #endif
