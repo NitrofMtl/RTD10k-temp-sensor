@@ -44,54 +44,36 @@ R = RTD resistance at current temp
 #include "Arduino.h"
 #include "RTD10k.h"
 
-const int numReadings = 20; //set average to count
-
 //////////---------------------------------------////////////////////////////////////////////
 
-void RTD10k::initialize(float Vref,int reso) {
-  _Vref = Vref;
-  _reso = reso;
-  for (int i = 0; i < 12; i++){ //initiate the RrefOffset to 0 
-    _RrefOffset[i] = 0;
-  }
+RTD10k::RTD10k(){}
+
+RTD10k::RTD10k(float vRef, int RESO){
+    _vRef = vRef;
+  if(RESO == 12) _RESO = 4095;
 }
 
-//////////---------------------------------------////////////////////////////////////////////
+void RTD10k::setRtd(float vRef, int RESO){
+    _vRef = vRef;
+  if(RESO == 12) _RESO = 4095;
+}
+
 
 float RTD10k::read(int selecInput) {//do reading loop
-
-
   int averageIn = average(selecInput); //analoRead(selecInpput)
 
-  if (_reso == 10) {
-    averageIn = map(averageIn, 0, 1023, 0, 4095); //mapping for 10bits resolution, else consider 12bit
-  }
-
   //electric value calculation
-  
-  Vin = (averageIn) * _Vref / 4095;  //calculate voltage to analog pin
-  
-  float Rref = 10000; //set default resistor value to 10k ohm
-  Rref = 10000 + _RrefOffset[selecInput]; //add the offset to default reference resistor value
-  
-  resistance = (Vin / (_Vref - Vin) * Rref); //calculate the resistance plug into the input
+  float Vin = (averageIn) * _vRef / _RESO;  //calculate voltage to analog pin  
+  float _rRef = rRef; //add the offset to default reference resistor value  
+  float resistance = (Vin / (_vRef - Vin) * _rRef); //calculate the resistance plug into the input
 
-_temp = (1/( (1/3950.00) * log(resistance/10000.00) +  (1/298.00) )  -273);  // resistance to temp formula
-if (_temp < -50){ //limite the lower range to -50C
-  _temp = -50;  
-}
-temp = _temp; //return tempeture in C degre
-return temp;
-}
-
-//////////---------------------------------------////////////////////////////////////////////
-
-void RTD10k::serialInputMon(String(ipName)) {    ///print all value for an input on demande
-  //print on serial port input reading  
-  if (Serial.available() > 0) ; {
-    Serial.println( "input; " + ipName + "; " + Vin + "Volt; R= " + resistance + " ohm Tempeture= " + temp + "C");
+  float temp = (1/( (1/3950.00) * log(resistance/10000.00) +  (1/298.00) )  -273);  // resistance to temp formula
+  if (temp < -50){ //limite the lower range to -50C
+    temp = -50;  
   }
+  return temp;  //return tempeture in C degre
 }
+
 
 //////////---------------------------------------////////////////////////////////////////////
 
@@ -100,15 +82,11 @@ void RTD10k::runCalibration(int selectInput){
 
  int averageIn = 0;
  averageIn = average(selectInput);
-
- if (_reso == 10) {
-    map(averageIn, 0, 1023, 0, 4095); //mapping for 10bits resolution
-  }
   
   //electric value calculation
-  Vin = averageIn * _Vref / 4095;
+  float Vin = averageIn * _vRef / _RESO;
 
-  float realRref = (_Vref-Vin)*10000/Vin;
+  float realRref = (_vRef-Vin)*10000/Vin;
   float Offset = 0;
   Offset = realRref-10000;
 
@@ -120,16 +98,6 @@ void RTD10k::runCalibration(int selectInput){
   if (Serial.available() > 0) ;{
     Serial.println(prntStatus);
   }
-}
-
-//////////---------------------------------------////////////////////////////////////////////
-
-
-
-void RTD10k::calibrateRref(int input, float offset){
-
- _RrefOffset[input] = offset;
- //Serial.println(_RrefOffset[input]); for troubleshoot
 }
 
 //////////---------------------------------------////////////////////////////////////////////
