@@ -45,20 +45,19 @@ R = RTD resistance at current temp
 
 int Ainput = A0; //set input pin for RTD
 float temperature = 0; //ouput variable
-String strRoomTemp = "Room Temperature"; //set the name of the input for serial print
-//float calibOffset = 332.67; // example of get value on calibration example
-float calibOffset = 0; //comment to try example calibration
 RTD10k Ain;//start an instance of library
+//RTD10k Ain(3.3,12); //set the reference input voltage to 3.3V or 5V, and input resolution 10 or 12 (arduino DUE only)
+int caractere = 33;
 
 void setup() {
   Serial.begin(9600);//start serial port
-  analogReadResolution(12);//arduino DUE only
-  Ain.init(3.3,12); //set the reference input voltage to 3.3V or 5V, and input resolution 10 or 12 (arduino DUE only)
-  Ain.calibrateRref(Ainput,calibOffset); //calibrate shield Reference resistor, (analog in, calibration value find with calibration sketch)
 }
 
 void loop() {
   temperature = Ain.read(Ainput); //do the reading temps 
-  Ain.serialInputMon(strRoomTemp); //print value to the serial port
+  Serial.print("Temperature is: ");
+  Serial.print(temperature);
+  Serial.write(186);
+  Serial.println('c');
   delay (1000);
 }
