@@ -34,24 +34,30 @@
     #include "WProgram.h"
 #endif
 
-#ifndef rRef
-#define rRef 10000
-#endif
+
+
+const int scale = 16;
+#define longToFixed(x)(x*(long)(1<<scale))
+#define fixedTofloat(x)(x/(float)(1<<scale))
 
 class RTD10k
 {
   public:
     RTD10k();
-    RTD10k(float vRef, int RESO);
+    RTD10k(int RESO);
 
     float read(int selecInput);
-    void runCalibration(int input);
-    void setRtd(float vRef, int RESO);
+    float readBit(int x); //input bit red directly trough sequencer
+    void setRtd(int RESO);
+
+    void runCalibration(int input);    
   private:  
     int average(int inputAv); //average calculation function
-    float _vRef = 5;
     int _RESO = 1023;
-    int numReadings = 5; //set average to count
+    const int bitTable[41];
+    const int tempTable[41];
+    
+    float _vRef = 5;
 };
 
 #endif

@@ -43,35 +43,68 @@ R = RTD resistance at current temp
 
 #include "Arduino.h"
 #include "RTD10k.h"
+//#include <ADC_SEQR.h>
 
 //////////---------------------------------------////////////////////////////////////////////
 
-RTD10k::RTD10k(){}
+RTD10k::RTD10k() : bitTable{4093,3994,3953,3899,3828,3739,3628,3494,3336,3156,
+    2954,2737,2509,2277,2047,1824,1613,1418,1240,1080,938,814,706,612,530,461,400,349,304,266,233,
+    205,181,160,141,126,112,100,89,80,0
+    },
+     tempTable{-45, -40,-35,-30,-25,-20,-15,10,-5,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,
+90,95,100,105,110,115,120,125,130,135,140,145,150,155}
+{}
 
-RTD10k::RTD10k(float vRef, int RESO){
-    _vRef = vRef;
+RTD10k::RTD10k(int RESO) : bitTable{4093,3994,3953,3899,3828,3739,3628,3494,3336,3156,
+    2954,2737,2509,2277,2047,1824,1613,1418,1240,1080,938,814,706,612,530,461,400,349,304,266,233,
+    205,181,160,141,126,112,100,89,80,0
+    },
+     tempTable{-45,-40,-35,-30,-25,-20,-15,10,-5,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,
+90,95,100,105,110,115,120,125,130,135,140,145,150,155}
+     {
   if(RESO == 12) _RESO = 4095;
 }
 
-void RTD10k::setRtd(float vRef, int RESO){
-    _vRef = vRef;
+void RTD10k::setRtd(int RESO){
   if(RESO == 12) _RESO = 4095;
 }
 
 
 float RTD10k::read(int selecInput) {//do reading loop
-  int averageIn = average(selecInput); //analoRead(selecInpput)
+   
+  int x = analogRead(selecInput); //analoRead(selecInpput)
+  //find where look up on table
+  int i=0;
+  while(bitTable[i]>x) i++;
+  //find m and b value of y=mx+b ==>
+  // m = (y1-y2)/(x1-x2) 
+  long y1 = longToFixed(tempTable[i]);
+  long y2 = longToFixed(tempTable[i-1]);
+  long x1 = bitTable[i];
+  long x2 = bitTable[i-1];
+  long mFixed = (y1-y2) / (x1-x2);
+  //b = y1 - m*x1
+  long bFixed = y1 - mFixed*x1;
+  //return mx+b
+  return fixedTofloat(mFixed*x)+fixedTofloat(bFixed);
+}
 
-  //electric value calculation
-  float Vin = (averageIn) * _vRef / _RESO;  //calculate voltage to analog pin  
-  float _rRef = rRef; //add the offset to default reference resistor value  
-  float resistance = (Vin / (_vRef - Vin) * _rRef); //calculate the resistance plug into the input
-
-  float temp = (1/( (1/3950.00) * log(resistance/10000.00) +  (1/298.00) )  -273);  // resistance to temp formula
-  if (temp < -50){ //limite the lower range to -50C
-    temp = -50;  
-  }
-  return temp;  //return tempeture in C degre
+float RTD10k::readBit(int x) {//do reading loop
+   
+  //find where look up on table
+  int i=0;
+  while(bitTable[i]>x) i++;
+  //find m and b value of y=mx+b ==>
+  // m = (y1-y2)/(x1-x2) 
+  long y1 = longToFixed(tempTable[i-1]);
+  long y2 = longToFixed(tempTable[i]);
+  long x1 = bitTable[i-1];
+  long x2 = bitTable[i];
+  long mFixed = (y1-y2) / (x1-x2);
+  //b = y1 - m*x1
+  long bFixed = y1 - mFixed*x1;
+  //return mx+b
+  return fixedTofloat(mFixed*x)+fixedTofloat(bFixed);
 }
 
 
@@ -79,12 +112,9 @@ float RTD10k::read(int selecInput) {//do reading loop
 
 ///////////////****** calibration functions !!!
 void RTD10k::runCalibration(int selectInput){
-
- int averageIn = 0;
- averageIn = average(selectInput);
-  
+ 
   //electric value calculation
-  float Vin = averageIn * _vRef / _RESO;
+  float Vin = analogRead(selectInput) * _vRef / _RESO;
 
   float realRref = (_vRef-Vin)*10000/Vin;
   float Offset = 0;
@@ -99,19 +129,3 @@ void RTD10k::runCalibration(int selectInput){
     Serial.println(prntStatus);
   }
 }
-
-//////////---------------------------------------////////////////////////////////////////////
-
-int RTD10k::average(int inputAv){
-
-  int output = 0;
-  int count = 0;
-  for (int i = 0; i < numReadings; i++){
-    int reading = analogRead(inputAv);
-    count += reading;
-  }
-  output = count/numReadings;
-  return output;
-}
-
-//////////---------------------------------------////////////////////////////////////////////
