@@ -41,9 +41,8 @@ R = RTD resistance at current temp
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "Arduino.h"
 #include "RTD10k.h"
-//#include <ADC_SEQR.h>
+
 
 //////////---------------------------------------////////////////////////////////////////////
 
@@ -70,23 +69,9 @@ void RTD10k::setRtd(int RESO){
 }
 
 
-float RTD10k::read(int selecInput) {//do reading loop
-   
+float RTD10k::read(int selecInput) {//do reading loop   
   int x = analogRead(selecInput); //analoRead(selecInpput)
-  //find where look up on table
-  int i=0;
-  while(bitTable[i]>x) i++;
-  //find m and b value of y=mx+b ==>
-  // m = (y1-y2)/(x1-x2) 
-  long y1 = longToFixed(tempTable[i]);
-  long y2 = longToFixed(tempTable[i-1]);
-  long x1 = bitTable[i];
-  long x2 = bitTable[i-1];
-  long mFixed = (y1-y2) / (x1-x2);
-  //b = y1 - m*x1
-  long bFixed = y1 - mFixed*x1;
-  //return mx+b
-  return fixedTofloat(mFixed*x)+fixedTofloat(bFixed);
+  return readBit(x);
 }
 
 float RTD10k::readBit(int x) {//do reading loop
@@ -105,27 +90,4 @@ float RTD10k::readBit(int x) {//do reading loop
   long bFixed = y1 - mFixed*x1;
   //return mx+b
   return fixedTofloat(mFixed*x)+fixedTofloat(bFixed);
-}
-
-
-//////////---------------------------------------////////////////////////////////////////////
-
-///////////////****** calibration functions !!!
-void RTD10k::runCalibration(int selectInput){
- 
-  //electric value calculation
-  float Vin = analogRead(selectInput) * _vRef / _RESO;
-
-  float realRref = (_vRef-Vin)*10000/Vin;
-  float Offset = 0;
-  Offset = realRref-10000;
-
-  String prntStatus = "input " ;
-  prntStatus += String(selectInput) += ":";
-  prntStatus +=  String(realRref) += "ohm , correction = ";
-  prntStatus += String(Offset);
-
-  if (Serial.available() > 0) ;{
-    Serial.println(prntStatus);
-  }
 }

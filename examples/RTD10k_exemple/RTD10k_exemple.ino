@@ -15,8 +15,6 @@ R = RTD resistance at current temp
 
     -------------------
 
-    ln in natural logarythme, will be log() fonction in arduino 
-
 
  Copyright (c) 20/05/2015
 
@@ -47,7 +45,6 @@ int Ainput = A0; //set input pin for RTD
 float temperature = 0; //ouput variable
 RTD10k Ain;//start an instance of library
 //RTD10k Ain(3.3,12); //set the reference input voltage to 3.3V or 5V, and input resolution 10 or 12 (arduino DUE only)
-int caractere = 33;
 
 void setup() {
   Serial.begin(9600);//start serial port

@@ -28,13 +28,7 @@
 #ifndef RTD10k_h
 #define RTD10k_h
 
-#if (ARDUINO >= 100)
-    #include "Arduino.h"
-#else
-    #include "WProgram.h"
-#endif
-
-
+#include "Arduino.h"
 
 const int scale = 16;
 #define longToFixed(x)(x*(long)(1<<scale))
@@ -48,9 +42,7 @@ class RTD10k
 
     float read(int selecInput);
     float readBit(int x); //input bit red directly trough sequencer
-    void setRtd(int RESO);
-
-    void runCalibration(int input);    
+    void setRtd(int RESO); 
   private:  
     int average(int inputAv); //average calculation function
     int _RESO = 1023;

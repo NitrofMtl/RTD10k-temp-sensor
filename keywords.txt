@@ -1,4 +1,3 @@
 RTD10k	KEYWORD1
 read	KEYWORD2
 setRtd	KEYWORD2
-runCalibration	KEYWORD2
