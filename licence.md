@@ -1,7 +1,6 @@
-/* RTD10kB3950 is a simple, low cost formula for an RTD NTC (negative tempeture coeficient) 
-  of 10Kohm at 25 degres C with a Beta of 3950.
-  
-  Copyright (c) 20/05/2015
+
+
+ Copyright (c) 5/08/2022
 
     By Nitrof
 
@@ -21,43 +20,4 @@
   COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
 */
-
-#ifndef RTD10k_h
-#define RTD10k_h
-
-#if (ARDUINO >= 100)
-    #include "Arduino.h"
-#else
-    #include "WProgram.h"
-#endif
-
-
-
-const int scale = 16;
-#define longToFixed(x)(x*(long)(1<<scale))
-#define fixedTofloat(x)(x/(float)(1<<scale))
-
-class RTD10k
-{
-  public:
-    RTD10k();
-    RTD10k(int RESO);
-
-    float read(int selecInput);
-    float readBit(int x); //input bit red directly trough sequencer
-    void setRtd(int RESO);
-
-    void runCalibration(int input);    
-  private:  
-    int average(int inputAv); //average calculation function
-    int _RESO = 1023;
-    const int bitTable[41];
-    const int tempTable[41];
-    
-    float _vRef = 5;
-};
-
-#endif
