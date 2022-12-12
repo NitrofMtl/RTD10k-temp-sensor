@@ -17,7 +17,7 @@ R = RTD resistance at current temp
     ------------------
 */
 
-#include <RTD10k.h>
+#include <RTD10K.h>
 
 int Ainput = A0; //set input pin for RTD
 float temperature = 0; //ouput variable
