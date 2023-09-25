@@ -18,7 +18,7 @@ R = RTD resistance at current temp
     Instead of do complex calculation into arduino, the library use a precalculated lookup table.
 */
 
-#include "RTD10k.h"
+#include "RTD10K.h"
 
 //////////---------------------------------------////////////////////////////////////////////
 
