@@ -18,7 +18,7 @@ R = RTD resistance at current temp
     Instead of do complex calculation into arduino, the library use a precalculated lookup table.
 */
 
-#include "RTD10k.h"
+#include "RTD10K.h"
 
 //////////---------------------------------------////////////////////////////////////////////
 
@@ -26,7 +26,7 @@ RTD10k::RTD10k(int reso) : bitTable{4093/reso, 3994/reso, 3953/reso, 3899/reso, 
     2737/reso, 2509/reso, 2277/reso, 2047/reso, 1824/reso, 1613/reso, 1418/reso, 1240/reso, 1080/reso, 938/reso, 814/reso, 706/reso, 612/reso, 530/reso,
     461/reso, 400/reso, 349/reso, 304/reso, 266/reso, 233/reso, 205/reso, 181/reso, 160/reso, 141/reso, 126/reso, 112/reso, 100/reso, 89/reso, 80/reso,0
     },
-    tempTable{-45,-40,-35,-30,-25,-20,-15,10,-5,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,
+    tempTable{-45,-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,
     90,95,100,105,110,115,120,125,130,135,140,145,150,155}
   {}
 

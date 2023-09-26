@@ -40,7 +40,7 @@ const int scale = 16;
 class RTD10k
 {
   public:
-    RTD10k(int RESO = RTD10K_ADC_10BIT);
+    RTD10k(int reso = RTD10K_ADC_10BIT);
     float getTemp(int x) const; //input by value directly trough sequencer
   private:  
     const int bitTable[41];
