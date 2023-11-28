@@ -13,9 +13,16 @@ Source formula for temp calculation:
 
 -create an instance
 ````
-RTD10K rtd;
-//or, for 12 bits ADC
-//RTD10k rtd(RTD10K_ADC_12BIT);
+//For analog resolution from 8 to 16 bits:
+//RTD_Reso::RESO_8 to RTD_Reso::RESO_16
+//Value must fit the analogResolution
+
+RTD10k rtd(RTD_Reso::RESO_10);
+````
+
+-Default resolution is RESO10, so you can call the constructor emty:
+```
+RTD10k rtd();
 ````
 
 -Convert analog reading to temperature
