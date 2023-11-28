@@ -25,26 +25,20 @@
 
 */
 
-#ifndef RTD10k_h
-#define RTD10k_h
+#ifndef RTD10K_h
+#define RTD10K_h
 
 #include "Arduino.h"
 
-#define RTD10K_ADC_10BIT 4
-#define RTD10K_ADC_12BIT 1
-
-const int scale = 16;
-#define longToFixed(x)(x*(long)(1<<scale))
-#define fixedTofloat(x)(x/(float)(1<<scale))
+enum class RTD_Reso { RESO_16, RESO_15, RESO_14, RESO_13, RESO_12, RESO_11, RESO_10, RESO_9, RESO_8 };
 
 class RTD10k
 {
   public:
-    RTD10k(int reso = RTD10K_ADC_10BIT);
-    float getTemp(int x) const; //input by value directly trough sequencer
-  private:  
-    const int bitTable[41];
-    const int tempTable[41];
+    RTD10k(RTD_Reso reso = RTD_Reso::RESO_10);
+    float getTemp(unsigned int read) const;
+  private:
+    uint8_t bitsUpgrade;
 };
 
 #endif //RTD10k_h

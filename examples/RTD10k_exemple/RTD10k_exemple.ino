@@ -21,9 +21,9 @@ R = RTD resistance at current temp
 
 int Ainput = A0; //set input pin for RTD
 float temperature = 0; //ouput variable
-RTD10k rtd;//start an instance of library
-//or
-//RTD10k rtd(RTD10K_ADC_12BIT);  //input resolution 12
+//options fo analog resolution are reso8 to reso16, 8 to 16 bits respectyvely
+//default is RESO_10
+RTD10k rtd(RTD_Reso::RESO_10);
 
 void setup() {
   Serial.begin(9600);//start serial port
@@ -36,3 +36,5 @@ void loop() {
   Serial.println('c');
   delay (1000);
 }
+
+

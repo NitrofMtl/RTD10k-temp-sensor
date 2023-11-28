@@ -21,29 +21,75 @@ R = RTD resistance at current temp
 #include "RTD10K.h"
 
 //////////---------------------------------------////////////////////////////////////////////
+namespace
+{
+  constexpr uint16_t RTD_AnalogRead[]
+  {
+    0, 1200, 2850, 4500, 6150, 7800, 9450, 11100, 12750, 14400, 16050, 17700, 19350, 21000, 22650, 24300, 25950, 27600, 29250, 30900, 32550, 34200,
+    35850, 37500, 39150, 40800, 42450, 44100, 45750, 47400, 49050, 50700, 52350, 54000, 55650, 57300, 58950, 60600, 62250, 63900, 65535
+  };
 
-RTD10k::RTD10k(int reso) : bitTable{4093/reso, 3994/reso, 3953/reso, 3899/reso, 3828/reso, 3739/reso, 3628/reso, 3494/reso, 3336/reso, 3156/reso, 2954/reso,
-    2737/reso, 2509/reso, 2277/reso, 2047/reso, 1824/reso, 1613/reso, 1418/reso, 1240/reso, 1080/reso, 938/reso, 814/reso, 706/reso, 612/reso, 530/reso,
-    461/reso, 400/reso, 349/reso, 304/reso, 266/reso, 233/reso, 205/reso, 181/reso, 160/reso, 141/reso, 126/reso, 112/reso, 100/reso, 89/reso, 80/reso,0
-    },
-    tempTable{-45,-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,
-    90,95,100,105,110,115,120,125,130,135,140,145,150,155}
-  {}
+  //temp table in hundred of celcius degrees
+  constexpr int16_t RTD_Temp[]
+  {
+    15296, 15296, 11562, 9797, 8650, 7801, 7125, 6562, 6077, 5650, 5266, 4916, 4593, 4292, 4008, 3738, 3481, 3233, 2993, 2759, 2530,
+    2305, 2082, 1860, 1638, 1416, 1191, 962, 727, 486, 235, -28, -308, -608, -937, -1305, -1729, -2241, -2913, -3956, -3956
+  };
 
-float RTD10k::getTemp(int x) const
-{//do reading loop
-  //find where look up on table
+};
+
+
+
+RTD10k::RTD10k(RTD_Reso reso)
+{
+  switch (reso){
+    case RTD_Reso::RESO_16 :
+    bitsUpgrade = 0;
+    break;
+    case RTD_Reso::RESO_15 :
+    bitsUpgrade = 1;
+    break;
+    case RTD_Reso::RESO_14 :
+    bitsUpgrade = 2;
+    break;
+    case RTD_Reso::RESO_13 :
+    bitsUpgrade = 3;
+    break;
+    case RTD_Reso::RESO_12 :
+    bitsUpgrade = 4;
+    break;
+    case RTD_Reso::RESO_11 :
+    bitsUpgrade = 5;
+    break;
+    case RTD_Reso::RESO_10 :
+    bitsUpgrade = 6;
+    break;
+    case RTD_Reso::RESO_9 :
+    bitsUpgrade = 7;
+    break;
+    case RTD_Reso::RESO_8 :
+    bitsUpgrade = 8;
+    break;
+  }
+  
+}
+
+float RTD10k::getTemp(unsigned int read) const
+{ 
+  //upgrade read to 16 bits resolution
+  read = read << bitsUpgrade;
+  //find where <<read>> is in look up on table
   int i=0;
-  while(bitTable[i]>x) i++;
+  if ( read > 0xFFFF ) { //protect 16bits from overflow
+    return NAN;
+  }
+  while( RTD_AnalogRead[i] < read ) i++;
   //find m and b value of y=mx+b ==>
-  // m = (y1-y2)/(x1-x2) 
-  long y1 = longToFixed(tempTable[i-1]);
-  long y2 = longToFixed(tempTable[i]);
-  long x1 = bitTable[i-1];
-  long x2 = bitTable[i];
-  long mFixed = (y1-y2) / (x1-x2);
-  //b = y1 - m*x1
-  long bFixed = y1 - mFixed*x1;
-  //return mx+b
-  return fixedTofloat(mFixed*x)+fixedTofloat(bFixed);
+  // Sloap: m = (y2-y1)/(x2-x1)
+  float m = ( RTD_Temp[i]-RTD_Temp[i-1] ) / ( static_cast<float>(RTD_AnalogRead[i]-RTD_AnalogRead[i-1]) );
+  // y at x0: b = y1 - m*x1
+  float b = RTD_Temp[i-1] -m*RTD_AnalogRead[i-1];
+  
+  //return temp back from hundred to celcius
+  return (m*read+b) /100;
 }
